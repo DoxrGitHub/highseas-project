@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Electron Cloud Model</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+
+        p {
+            position: fixed;
+            color: white;
+            font-family: monospace;
+        }
+
+        a {
+            color:aqua;
+        }
+    </style>
+</head>
+<body>
+    <p>This is a <a href="https://en.wikipedia.org/wiki/Bromine">bromine atom</a> represented through the cloud electron model to the best of my ability. In this visualization, the bromine atom is depicted using the quantum mechanical model of atomic structure. This model is based on Schrödinger's wave equations, which describe the behavior and probable locations of electrons in an atom. Electrons are incredibly small and fast-moving, making it impossible to pinpoint their exact locations at any given moment. Instead, quantum mechanics describes their locations in terms of probability. So, it looks like a cloud ¯\_(ツ)_/¯</p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.155.0/three.min.js"></script>
+    <script>
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const nucleusGroup = new THREE.Group();
+        const protonMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
+        const neutronMaterial = new THREE.MeshBasicMaterial({ color: 0xaaaaaa }); 
+
+        for (let i = 0; i < 35; i++) { 
+            const proton = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), protonMaterial);
+            proton.position.set(
+                Math.random() - 0.5,
+                Math.random() - 0.5,
+                Math.random() - 0.5
+            ).multiplyScalar(1.5);
+            nucleusGroup.add(proton);
+        }
+
+        for (let i = 0; i < 45; i++) { 
+            const neutron = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), neutronMaterial);
+            neutron.position.set(
+                Math.random() - 0.5,
+                Math.random() - 0.5,
+                Math.random() - 0.5
+            ).multiplyScalar(1.5);
+            nucleusGroup.add(neutron);
+        }
+
+        scene.add(nucleusGroup);
+
+        const particleCount = 5000; 
+        const particlesGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3); 
+
+        for (let i = 0; i < particleCount; i++) {
+            const radius = Math.random() * 10; 
+            const theta = Math.random() * 2 * Math.PI; 
+            const phi = Math.acos(2 * Math.random() - 1); 
+
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.sin(phi) * Math.sin(theta);
+            const z = radius * Math.cos(phi);
+
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            color: 0x00ffff, 
+            size: 0.1, 
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const electronCloud = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(electronCloud);
+
+        camera.position.z = 20;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            nucleusGroup.rotation.x += 0.01;
+            nucleusGroup.rotation.y += 0.01;
+
+            electronCloud.rotation.y += 0.002;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
